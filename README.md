@@ -1,3 +1,3 @@
-# Hanako Keney's Personal Website 
-Bare minimum html + css website to use as my coding portfolio
+# hanako keney's personal Website 
+bare minimum html + css website to use as my coding portfolio
 Currently under construction
