@@ -32,66 +32,117 @@
     margin: 0;
     padding: 0;
     background-color: transparent;
-    font-family: 'Montserrat','Courier New', Courier, monospace;
-    font-weight: 500;
+    font-family: Helvetica, sans-serif;
     /* border: 1px solid red; */
 }
 
 body {
-
-    background-color: rgb(248, 242, 222);
-    position: relative;
-}
-
-.paper-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  min-height: 100%;
-  background-image: url("paper_texture_2.jpg");
-  background-size: auto;
-  background-repeat: repeat;
-  background-position: top left;
-  opacity: 20%;
-  pointer-events: none; 
-  z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    color: #828079;
+    margin: 15px;
+    padding: 10px;
 }
 
 
-p, h1, h2, h3, h4, h5, h6, .text {
-  position: relative;
-  z-index: 2;
-}
-
-
-.sky {
-    width: 100px; 
-    height: 500px; 
-    object-fit: cover; 
-}
-
-#cloud {
-    width:500px;
-    height:auto;
-}
-
-.tab {
-    flex: 1;
-    display: block;
-    padding: 15px;
+.title {
+    margin: 35px 0px 15px;
     text-align: center;
-    text-decoration: none;
-    font-weight: bold;
+
+    font-size: 50px;
+    letter-spacing: 15px;
+    font-weight: 400;
+
+    color: #ffc400;
 }
 
-.tab:hover {
-    padding: 15px;
-    font-size: 20px;
-    color: rgb(80, 176, 255);
+.layout {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: flex-start;
+  width: 100%;
+  transform: translateX(16%);
+  
+}
+
+.image-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 1600px;
+  height: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.image-wrapper img {
+  width: 900px;
+  max-width: 90%;
+  height: auto;
+  position: absolute;
+  left: 50%; /* anchor to center */
+}
+
+.tophydrangea {
+    width: 750px; 
+    transform: translateX(35%);
+}
+
+.bottomhydrangea {
+    width: 800px; transform: 
+    translateX(25%);
+}
+
+.navbar {
+    display: flex; 
+    flex-direction: column;
+}
+
+.navbar a {
+    flex: 1;
+    padding: 0px;
+    text-align: left;
+
+    font-size: 36px;
+
+    color: #000000;
+}
+
+.navbar a:hover {
+    color: #307ad2;
+}
+
+.navbar .caption {
+    flex: 1;
+    padding: 0px 0px 10px;
+    text-align: left;
+    
+    font-size: 10px;
+    
+    color: #000000;
 }
 
 .citation {
+    flex: 1;
     font-size: 3px;
+}
+
+
+@media (max-width: 900px) {
+
+  .layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  /* Reduce offsets so images stay readable on mobile */
+  .tophydrangea img {
+    transform: translateX(-55%);
+  }
+
+  .bottomhydrangea img {
+    transform: translateX(-45%);
+  }
 }
