@@ -45,7 +45,7 @@ export default function Home() {
         </div>
 
         <div className="tile decorative-tile medium" style={{background: 'linear-gradient(135deg, var(--tile-azure), var(--tile-sky-light))'}}>
-          <p style={{fontSize: '0.8rem', margin: 0}}>Full-Stack Developer</p>
+          <p style={{fontSize: '0.8rem', margin: 0}}>carvomg my space on the internet</p>
         </div>
       </div>
 
