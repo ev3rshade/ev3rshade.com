@@ -1,12 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ev3rshade</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<!-- Canvas overlay for plants -->
+        <canvas id="plant-canvas"></canvas>
+
+        <!-- Controls -->
+        <div class="controls">
+            <h3>plant tester</h3>
+            <button onclick="plantManager.plantRandomFern()">Plant Fern</button>
+            <button onclick="plantManager.plantRandomMoss()">Plant Moss</button>
+            <button onclick="plantManager.plantRandomVine()">Plant Vine</button>
+            <button onclick="plantManager.clearAll()">Clear All</button>
+            <div class="plant-count">Plants: <span id="plant-count">0</span></div>
+        </div>
+
+        <p class="title">w e b s i t e</p>
+        <p style="margin: 0px 0px 35px;text-align: center;"> Welcome  |  ようこそ </p>
+        <div class="layout">
+            <div class="navbar">
+                <a href="#">hanako keney</a>
+                <p class="caption">(about me)</p>
+                <a href="./project.html">projects</a>
+                <p class="caption">cool things i've made</p>
+                <a href="#">blog</a>
+                <p class="caption">my place in the world</p>
+            </div>
+        </div>
+        
+        <p class="citation">"<a rel="noopener noreferrer" href="https://www.flickr.com/photos/115665376@N07/26365080812">Tessellated Clover Folding</a>" by <a rel="noopener noreferrer" href="https://www.flickr.com/photos/115665376@N07">modular.dodecahedron</a> is licensed under <a rel="noopener noreferrer" href="https://creativecommons.org/licenses/by-sa/2.0/?ref=openverse">CC BY-SA 2.0</a>.</p>
+    
+    <!-- Load plant modules -->
+    <script type="module" src="js/main.js"></script>
+</body>
 </html>
