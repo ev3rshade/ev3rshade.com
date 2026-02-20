@@ -46,24 +46,60 @@ export default class PlantManager {
 
     plantRandomFern() {
         const elements = this.getGrowableElements();
-        if (elements.length === 0) return;
+        if (elements.length === 0) {
+            console.warn('No growable elements found!');
+            return;
+        }
+        
         const element = elements[Math.floor(Math.random() * elements.length)];
-        const borderPixels = this.getElementBorderPixels(element);
-        const bottomPixels = borderPixels.filter(p => p.edge === 'bottom');
-        if (bottomPixels.length === 0) return;
-        const seedPos = bottomPixels[Math.floor(Math.random() * bottomPixels.length)];
-        this.plants.push(new Fern(seedPos.x, seedPos.y, this.pixelSize));
-        this.updateCount();
+        const rect = element.getBoundingClientRect();
+        
+        // Ferns can grow from ANY edge
+        const edges = ['top', 'bottom', 'left', 'right'];
+        const edge = edges[Math.floor(Math.random() * edges.length)];
+        
+        let seedX, seedY;
+        
+        switch(edge) {
+            case 'top':
+                seedX = rect.left + Math.random() * (rect.right - rect.left);
+                seedY = rect.top;
+                break;
+            case 'bottom':
+                seedX = rect.left + Math.random() * (rect.right - rect.left);
+                seedY = rect.bottom;
+                break;
+            case 'left':
+                seedX = rect.left;
+                seedY = rect.top + Math.random() * (rect.bottom - rect.top);
+                break;
+            case 'right':
+                seedX = rect.right;
+                seedY = rect.top + Math.random() * (rect.bottom - rect.top);
+                break;
+        }
+        
+        this.plants.push(new Fern(seedX, seedY, this.pixelSize));
+        console.log('🌿 Planted fern from', edge, 'edge at', { x: seedX, y: seedY });
     }
 
     plantRandomMoss() {
         const elements = this.getGrowableElements();
-        if (elements.length === 0) return;
+        if (elements.length === 0) {
+            console.warn('No growable elements found!');
+            return;
+        }
+        
         const element = elements[Math.floor(Math.random() * elements.length)];
-        const borderPixels = this.getElementBorderPixels(element);
-        const seedPos = borderPixels[Math.floor(Math.random() * borderPixels.length)];
-        this.plants.push(new Moss(seedPos.x, seedPos.y, this.pixelSize, borderPixels));
-        this.updateCount();
+        const rect = element.getBoundingClientRect();
+        
+        // Moss can start anywhere within the element bounds
+        const seedX = rect.left + Math.random() * (rect.right - rect.left);
+        const seedY = rect.top + Math.random() * (rect.bottom - rect.top);
+        
+        // Pass the element itself (not borderPixels) for realistic moss
+        this.plants.push(new Moss(seedX, seedY, this.pixelSize, element));
+        console.log('🍃 Planted moss patch at', { x: seedX, y: seedY });
     }
 
     plantRandomVine() {
@@ -76,7 +112,7 @@ export default class PlantManager {
         const element = elements[Math.floor(Math.random() * elements.length)];
         const rect = element.getBoundingClientRect();
         
-        // Vines start from TOP edge or SIDE edges (where they would naturally hang from)
+        // Vines start from TOP edge or upper SIDE edges (hanging plants)
         const edgeChoice = Math.random();
         let seedX, seedY;
         
@@ -85,30 +121,22 @@ export default class PlantManager {
             seedX = rect.left + Math.random() * (rect.right - rect.left);
             seedY = rect.top;
         } else if (edgeChoice < 0.75) {
-            // Left edge
+            // Left edge (upper portion only)
             seedX = rect.left;
-            seedY = rect.top + Math.random() * (rect.bottom - rect.top) * 0.3; // Upper portion
+            seedY = rect.top + Math.random() * (rect.bottom - rect.top) * 0.3;
         } else {
-            // Right edge  
+            // Right edge (upper portion only)
             seedX = rect.right;
-            seedY = rect.top + Math.random() * (rect.bottom - rect.top) * 0.3; // Upper portion
+            seedY = rect.top + Math.random() * (rect.bottom - rect.top) * 0.3;
         }
         
-        // Import the new Vine class
-        const vine = new Vine(seedX, seedY, this.pixelSize);
-        this.plants.push(vine);
-        
-        console.log('🌿 Planted hanging vine at', { x: seedX, y: seedY });
+        this.plants.push(new Vine(seedX, seedY, this.pixelSize));
+        console.log('🌱 Planted hanging vine at', { x: seedX, y: seedY });
     }
-
 
     clearAll() {
         this.plants = [];
-        this.updateCount();
-    }
-
-    updateCount() {
-        document.getElementById('plant-count').textContent = this.plants.length;
+        console.log('🧹 Cleared all plants');
     }
 
     animate() {
