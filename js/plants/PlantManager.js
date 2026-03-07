@@ -1,4 +1,4 @@
-import Fern from './Fern.js';
+import FernCluster from './FernCluster.js';
 import Moss from './Moss.js';
 import Vine from './Vine.js';
 
@@ -44,23 +44,26 @@ export default class PlantManager {
         return pixels;
     }
 
+    // ── Fern: 70% ground, 30% element edge ────────────────────────────────
     plantRandomFern() {
+        if (Math.random() < 0.7) {
+            this.plantGroundFern();
+            return;
+        }
         const elements = this.getGrowableElements();
         if (elements.length === 0) {
             console.warn('No growable elements found!');
             return;
         }
-        
+
         const element = elements[Math.floor(Math.random() * elements.length)];
         const rect = element.getBoundingClientRect();
-        
-        // Ferns can grow from ANY edge
+
         const edges = ['top', 'bottom', 'left', 'right'];
         const edge = edges[Math.floor(Math.random() * edges.length)];
-        
+
         let seedX, seedY;
-        
-        switch(edge) {
+        switch (edge) {
             case 'top':
                 seedX = rect.left + Math.random() * (rect.right - rect.left);
                 seedY = rect.top;
@@ -78,62 +81,80 @@ export default class PlantManager {
                 seedY = rect.top + Math.random() * (rect.bottom - rect.top);
                 break;
         }
-        
-        this.plants.push(new Fern(seedX, seedY, this.pixelSize));
-        console.log('🌿 Planted fern from', edge, 'edge at', { x: seedX, y: seedY });
+
+        this.plants.push(new FernCluster(seedX, seedY, this.pixelSize, this.canvas.height));
+        console.log('🌿 Planted fern cluster from', edge, 'edge at', { x: seedX, y: seedY });
     }
 
+    // ── Fern on the ground (bottom of canvas) ─────────────────────────────
+    plantGroundFern(x) {
+        // x is optional — omit for a random position along the bottom
+        const seedX = x !== undefined ? x : Math.random() * this.canvas.width;
+        const seedY = this.canvas.height;
+
+        this.plants.push(new FernCluster(seedX, seedY, this.pixelSize, this.canvas.height));
+        console.log('🌱 Planted ground fern cluster at', { x: seedX, y: seedY });
+    }
+
+    // Convenience: fill the ground with evenly spaced fern clusters
+    plantGroundRow(count = 10) {
+        const spacing = this.canvas.width / count;
+        for (let i = 0; i < count; i++) {
+            // Randomise position within each slot so it doesn't look mechanical
+            const seedX = spacing * i + Math.random() * spacing;
+            this.plantGroundFern(seedX);
+        }
+        console.log(`🌿 Planted ${count} ground fern clusters along the bottom`);
+    }
+
+    // ── Moss ───────────────────────────────────────────────────────────────
     plantRandomMoss() {
         const elements = this.getGrowableElements();
         if (elements.length === 0) {
             console.warn('No growable elements found!');
             return;
         }
-        
+
         const element = elements[Math.floor(Math.random() * elements.length)];
         const rect = element.getBoundingClientRect();
-        
-        // Moss can start anywhere within the element bounds
+
         const seedX = rect.left + Math.random() * (rect.right - rect.left);
         const seedY = rect.top + Math.random() * (rect.bottom - rect.top);
-        
-        // Pass the element itself (not borderPixels) for realistic moss
+
         this.plants.push(new Moss(seedX, seedY, this.pixelSize, element));
         console.log('🍃 Planted moss patch at', { x: seedX, y: seedY });
     }
 
+    // ── Vine ───────────────────────────────────────────────────────────────
     plantRandomVine() {
         const elements = this.getGrowableElements();
         if (elements.length === 0) {
             console.warn('No growable elements found!');
             return;
         }
-        
+
         const element = elements[Math.floor(Math.random() * elements.length)];
         const rect = element.getBoundingClientRect();
-        
-        // Vines start from TOP edge or upper SIDE edges (hanging plants)
+
         const edgeChoice = Math.random();
         let seedX, seedY;
-        
+
         if (edgeChoice < 0.5) {
-            // Top edge - most natural for hanging vines
             seedX = rect.left + Math.random() * (rect.right - rect.left);
             seedY = rect.top;
         } else if (edgeChoice < 0.75) {
-            // Left edge (upper portion only)
             seedX = rect.left;
             seedY = rect.top + Math.random() * (rect.bottom - rect.top) * 0.3;
         } else {
-            // Right edge (upper portion only)
             seedX = rect.right;
             seedY = rect.top + Math.random() * (rect.bottom - rect.top) * 0.3;
         }
-        
+
         this.plants.push(new Vine(seedX, seedY, this.pixelSize));
         console.log('🌱 Planted hanging vine at', { x: seedX, y: seedY });
     }
 
+    // ── Utility ────────────────────────────────────────────────────────────
     clearAll() {
         this.plants = [];
         console.log('🧹 Cleared all plants');
