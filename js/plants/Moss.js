@@ -6,124 +6,123 @@ export default class Moss {
         this.element = el;
         this.elementRect = el.getBoundingClientRect();
 
-        this.pixels = [{ x, y, age: 0, density: 1, flickerOffset: 0 }];
+        this.pixels = [];
         this.flowers = [];
 
-        this.maxSize = 120 + Math.random() * 180;
-        this.growthSpeed = 0.3;
+        // Dome radius grows over time up to a max
+        this.currentRadius = ps;
+        // Skew toward larger sizes — occasional very large bushes
+        const roll = Math.random();
+        if (roll < 0.5)       this.maxRadius = 40  + Math.random() * 60;   // 40–100  (common)
+        else if (roll < 0.8)  this.maxRadius = 100 + Math.random() * 80;   // 100–180 (medium)
+        else                  this.maxRadius = 180 + Math.random() * 120;  // 180–300 (large)
+
+        this.growthSpeed = 0.4;
         this.growth = 0;
-        this.currentSize = 1;
 
-        // Spread radius kept tight for a rounded dome shape
-        this.spreadRadius = ps * 2.5;
-
-        this.animPhase  = Math.random() * Math.PI * 2;
-        this.animSpeed  = 0.004;
         this.flowerPhase = Math.random() * Math.PI * 2;
         this.flowerSpeed = 0.002;
 
-        // Colour palette: dark core → mid body → light fringe (all natural greens)
-        this.colorCore   = '#2a4a1a'; // very dark green, center shadow
-        this.colorDark   = '#3a6b22'; // dark green
-        this.colorMid    = '#4e8c2f'; // mid green
-        this.colorLight  = '#6ab040'; // bright green
-        this.colorFringe = '#8dc85a'; // lightest, outer wisps
+        // Green palette — dark base/shadow to light highlight top
+        this.colorShadow  = '#1a3310'; // darkest — bottom shadow
+        this.colorDark    = '#2d5a1b'; // dark green
+        this.colorMid     = '#4a9130'; // mid green
+        this.colorLight   = '#6ab040'; // bright
+        this.colorHighlight = '#9dd65a'; // lightest — top highlight
 
-        // Pink flower colours
+        // Pink flowers
         this.flowerColor      = '#e87aa0';
         this.flowerColorLight = '#f5b8cc';
+
+        // Pre-fill the dome pixel grid from the start so it builds outward
+        this._buildDome();
     }
 
-    // ── Growth ──────────────────────────────────────────────────────────────
-    update() {
-        if (this.currentSize < this.maxSize) {
-            this.growth += this.growthSpeed;
-            if (this.growth >= 1) {
-                this.growth = 0;
-                this.spreadMoss();
+    // ── Build a full dome pixel grid, revealed progressively ──────────────
+    _buildDome() {
+        const ps = this.pixelSize;
+        const r  = this.maxRadius;
+
+        // Generate all pixels that would be in the final dome, store with a
+        // "revealRadius" so we can grow them in from centre outward
+        this._domePixels = [];
+
+        for (let dx = -r; dx <= r; dx += ps) {
+            for (let dy = -r; dy <= 0; dy += ps) { // only upper half = dome
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist > r) continue;
+
+                // Squash slightly vertically so it's a wide dome not a semicircle
+                const domeDist = Math.sqrt((dx * dx) + (dy * dy) * 1.4);
+                if (domeDist > r) continue;
+
+                // Add some organic edge noise — drop ~20% of outer pixels
+                const edgeFactor = dist / r;
+                if (edgeFactor > 0.75 && Math.random() < (edgeFactor - 0.75) * 2.5) continue;
+
+                const wx = this.x + dx;
+                const wy = this.y + dy;
+
+                if (!this.isWithinElement(wx, wy)) continue;
+
+                this._domePixels.push({
+                    x: Math.round(wx / ps) * ps,
+                    y: Math.round(wy / ps) * ps,
+                    dist,
+                    // normalised height within dome: 0=bottom edge, 1=top
+                    heightFactor: 1 - ((dy + r) / r),
+                    flickerOffset: Math.random() * Math.PI * 2,
+                    age: 0,
+                    revealed: false
+                });
             }
         }
 
-        this.pixels.forEach(p => {
-            p.age++;
-            if (p.age > 50 && p.density < 1) p.density = Math.min(1, p.density + 0.01);
-        });
+        // Sort by distance from centre so growth radiates outward
+        this._domePixels.sort((a, b) => a.dist - b.dist);
+        this._revealIndex = 0;
+    }
 
+    // ── Update ─────────────────────────────────────────────────────────────
+    update() {
+        // Reveal pixels outward from centre
+        if (this._revealIndex < this._domePixels.length) {
+            this.growth += this.growthSpeed;
+            const toReveal = Math.floor(this.growth);
+            this.growth -= toReveal;
+
+            for (let i = 0; i < toReveal && this._revealIndex < this._domePixels.length; i++) {
+                this._domePixels[this._revealIndex].revealed = true;
+                this._revealIndex++;
+            }
+        }
+
+        this._domePixels.forEach(p => { if (p.revealed) p.age++; });
         this.flowers.forEach(f => f.age++);
 
-        if (this.pixels.length > 30 && Math.random() < 0.02) this.addFlower();
-        this.flowers = this.flowers.filter(f => f.age < 300);
+        const revealed = this._domePixels.filter(p => p.revealed);
+        if (revealed.length > 20 && Math.random() < 0.015) this.addFlower(revealed);
+        this.flowers = this.flowers.filter(f => f.age < 320);
 
-        this.animPhase   += this.animSpeed;
         this.flowerPhase += this.flowerSpeed;
     }
 
-    spreadMoss() {
-        const src = this.pixels[Math.floor(Math.random() * this.pixels.length)];
-        const isEdge = this.isNearEdge(src.x, src.y);
-        const attempts = isEdge ? 2 : 5;
-
-        for (let i = 0; i < attempts; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            // Bias spread horizontally to form a wider dome (x spreads more than y)
-            const dx = Math.cos(angle) * (this.pixelSize + Math.random() * this.spreadRadius) * 1.2;
-            const dy = Math.sin(angle) * (this.pixelSize + Math.random() * this.spreadRadius) * 0.85;
-            const nx = src.x + dx;
-            const ny = src.y + dy;
-
-            if (!this.isWithinElement(nx, ny)) continue;
-
-            // Edge pixels are patchier, centre is dense
-            const growChance = isEdge ? 0.45 : 0.88;
-            if (Math.random() > growChance) continue;
-
-            const alreadyExists = this.pixels.some(
-                p => Math.abs(p.x - nx) < this.pixelSize && Math.abs(p.y - ny) < this.pixelSize
-            );
-            if (alreadyExists) continue;
-
-            // Density based on distance from moss origin (centre = denser)
-            const dist = Math.sqrt((nx - this.x) ** 2 + (ny - this.y) ** 2);
-            const maxDist = Math.max(this.elementRect.width, this.elementRect.height) * 0.5;
-            const distFactor = Math.max(0, 1 - dist / maxDist);
-            const density = 0.25 + distFactor * 0.75;
-
-            this.pixels.push({
-                x: nx, y: ny,
-                age: 0,
-                density,
-                flickerOffset: Math.random() * Math.PI * 2
-            });
-            this.currentSize++;
-        }
-    }
-
     isWithinElement(x, y) {
-        return (
-            x >= this.elementRect.left && x <= this.elementRect.right &&
-            y >= this.elementRect.top  && y <= this.elementRect.bottom
-        );
+        const r = this.elementRect;
+        return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
     }
 
-    isNearEdge(x, y) {
-        const m = this.pixelSize * 3;
-        return (
-            x < this.elementRect.left  + m || x > this.elementRect.right  - m ||
-            y < this.elementRect.top   + m || y > this.elementRect.bottom - m
-        );
-    }
+    // ── Flowers ────────────────────────────────────────────────────────────
+    addFlower(revealed) {
+        // Only bloom near the top of the dome
+        const topPixels = revealed.filter(p => p.heightFactor > 0.5 && p.age > 40);
+        if (topPixels.length === 0) return;
 
-    // ── Flowers ─────────────────────────────────────────────────────────────
-    addFlower() {
-        const mature = this.pixels.filter(p => p.age > 50 && p.density > 0.6);
-        if (mature.length === 0) return;
-
-        const host = mature[Math.floor(Math.random() * mature.length)];
-        const petalCount = 3 + Math.floor(Math.random() * 3); // 3–5 petals
+        const host = topPixels[Math.floor(Math.random() * topPixels.length)];
+        const petalCount = 3 + Math.floor(Math.random() * 3);
         const f = {
             x: host.x, y: host.y,
             age: 0,
-            size: petalCount,
             pixels: [],
             appearPhase: Math.random() * Math.PI * 2
         };
@@ -139,78 +138,55 @@ export default class Moss {
         this.flowers.push(f);
     }
 
-    // ── Draw ─────────────────────────────────────────────────────────────────
+    // ── Draw ───────────────────────────────────────────────────────────────
     draw(ctx) {
         const ps = this.pixelSize;
 
-        // Sort pixels so dark/dense ones draw first (centre), light ones on top
-        const sorted = [...this.pixels].sort((a, b) => b.density - a.density);
+        this._domePixels.forEach(p => {
+            if (!p.revealed) return;
 
-        sorted.forEach(p => {
-            const fadeIn = Math.min(1, p.age / 30);
+            const h = p.heightFactor;
+            const edgeFactor = p.dist / this.maxRadius;
+            const shadingFactor = h * 0.65 + (1 - edgeFactor) * 0.35;
 
-            // Pick colour based on density (centre = dark, edge = light)
             let color;
-            if      (p.density > 0.85) color = this.colorCore;
-            else if (p.density > 0.68) color = this.colorDark;
-            else if (p.density > 0.50) color = this.colorMid;
-            else if (p.density > 0.32) color = this.colorLight;
-            else                       color = this.colorFringe;
+            if      (shadingFactor < 0.15) color = this.colorShadow;
+            else if (shadingFactor < 0.35) color = this.colorDark;
+            else if (shadingFactor < 0.58) color = this.colorMid;
+            else if (shadingFactor < 0.78) color = this.colorLight;
+            else                           color = this.colorHighlight;
 
-            let alpha = fadeIn * (0.5 + p.density * 0.5);
-
-            // Outer pixels get a gentle sway flicker
-            if (p.density < 0.45) {
-                const flicker = Math.sin(this.animPhase + p.flickerOffset) * 0.25 + 0.75;
-                alpha *= flicker;
-                const sx = Math.sin(this.animPhase + p.flickerOffset) * 0.6;
-                const sy = Math.cos(this.animPhase * 0.7 + p.flickerOffset) * 0.4;
-
-                ctx.fillStyle  = color;
-                ctx.globalAlpha = alpha;
-                // Snap to pixel grid for chunky retro look
-                const gx = Math.round((p.x + sx) / ps) * ps;
-                const gy = Math.round((p.y + sy) / ps) * ps;
-                ctx.fillRect(gx, gy, ps, ps);
-            } else {
-                ctx.fillStyle  = color;
-                ctx.globalAlpha = alpha;
-                const gx = Math.round(p.x / ps) * ps;
-                const gy = Math.round(p.y / ps) * ps;
-                ctx.fillRect(gx, gy, ps, ps);
-
-                // Darker sub-pixel detail in the dense centre for texture
-                if (p.density > 0.7 && Math.random() < 0.25) {
-                    ctx.fillStyle   = this.colorCore;
-                    ctx.globalAlpha = alpha * 0.4;
-                    ctx.fillRect(gx, gy, ps * 0.5, ps * 0.5);
-                }
-            }
+            ctx.fillStyle   = color;
+            ctx.globalAlpha = 0.6 + (1 - edgeFactor) * 0.4;
+            ctx.fillRect(p.x, p.y, ps, ps);
         });
 
-        // Draw pink flowers
+        // ── Pink flowers ───────────────────────────────────────────────────
         this.flowers.forEach(f => {
-            const lifePct = f.age / 300;
+            const lifePct = f.age / 320;
             let fa;
-            if      (lifePct < 0.2) fa = lifePct / 0.2;
-            else if (lifePct > 0.8) fa = (1 - lifePct) / 0.2;
-            else                    fa = Math.sin(this.flowerPhase + f.appearPhase) * 0.15 + 0.85;
+            if      (lifePct < 0.15) fa = lifePct / 0.15;
+            else if (lifePct > 0.82) fa = (1 - lifePct) / 0.18;
+            else                     fa = Math.sin(this.flowerPhase + f.appearPhase) * 0.1 + 0.9;
 
             f.pixels.forEach((fp, i) => {
-                // Alternate petal shades for depth
                 ctx.fillStyle   = i % 2 === 0 ? this.flowerColor : this.flowerColorLight;
                 ctx.globalAlpha = fa;
-                const gx = Math.round(fp.x / ps) * ps;
-                const gy = Math.round(fp.y / ps) * ps;
-                ctx.fillRect(gx, gy, ps, ps);
+                ctx.fillRect(
+                    Math.round(fp.x / ps) * ps,
+                    Math.round(fp.y / ps) * ps,
+                    ps, ps
+                );
             });
 
-            // White centre dot
+            // White centre
             ctx.fillStyle   = '#ffffff';
-            ctx.globalAlpha = fa * 0.85;
-            const cx = Math.round(f.x / ps) * ps;
-            const cy = Math.round(f.y / ps) * ps;
-            ctx.fillRect(cx + ps * 0.25, cy + ps * 0.25, ps * 0.5, ps * 0.5);
+            ctx.globalAlpha = fa * 0.9;
+            ctx.fillRect(
+                Math.round(f.x / ps) * ps + ps * 0.25,
+                Math.round(f.y / ps) * ps + ps * 0.25,
+                ps * 0.5, ps * 0.5
+            );
         });
 
         ctx.globalAlpha = 1;

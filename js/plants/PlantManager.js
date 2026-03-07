@@ -1,4 +1,4 @@
-import FernCluster from './FernCluster.js';
+import FernCluster from './Ferncluster.js';
 import Moss from './Moss.js';
 import Vine from './Vine.js';
 
