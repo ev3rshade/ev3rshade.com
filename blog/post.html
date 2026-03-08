@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>post — ev3rshade</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <canvas id="plant-canvas"></canvas>
+
+    <div class="layout">
+        <a href="./index.html" class="back-link">&larr; blog</a>
+        <div class="post-container">
+            <div id="post-content">
+                <p class="error-state">loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script type="module" src="../js/main.js"></script>
+    <script>
+        async function loadPost() {
+            const container = document.getElementById('post-content');
+            const params = new URLSearchParams(window.location.search);
+            const slug = params.get('slug');
+
+            if (!slug) {
+                container.innerHTML = '<p class="error-state">no post specified.</p>';
+                return;
+            }
+
+            try {
+                const res = await fetch(`./posts/${slug}.md`);
+                if (!res.ok) throw new Error('not found');
+                const text = await res.text();
+
+                // Parse optional frontmatter (--- ... ---)
+                let markdown = text;
+                let title = slug;
+                let date = '';
+
+                const frontmatterMatch = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+                if (frontmatterMatch) {
+                    const meta = frontmatterMatch[1];
+                    markdown = frontmatterMatch[2];
+
+                    const titleMatch = meta.match(/^title:\s*(.+)$/m);
+                    const dateMatch = meta.match(/^date:\s*(.+)$/m);
+                    if (titleMatch) title = titleMatch[1].trim();
+                    if (dateMatch) date = dateMatch[1].trim();
+                }
+
+                document.title = `${title} — ev3rshade`;
+
+                container.innerHTML = `
+                    <div class="post-meta">${date ? date + ' &mdash; ' : ''}ev3rshade</div>
+                    <div class="prose">${marked.parse(markdown, { breaks: true })}</div>
+                `;
+            } catch (e) {
+                container.innerHTML = '<p class="error-state">post not found.</p>';
+            }
+        }
+
+        loadPost();
+    </script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>blog — ev3rshade</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .post-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .post-card {
+            border: 4px solid #0066ff;
+            padding: 24px;
+            margin: 24px 0;
+            background: #ffffff;
+            box-shadow: 8px 8px 0px rgba(0, 102, 255, 0.2);
+            text-decoration: none;
+            display: block;
+            transition: all 0.2s;
+        }
+
+        .post-card:hover {
+            background: #0066ff;
+            transform: translate(2px, 2px);
+            box-shadow: 4px 4px 0px rgba(0, 102, 255, 0.3);
+        }
+
+        .post-card:hover .post-title,
+        .post-card:hover .post-description,
+        .post-card:hover .post-date {
+            color: #ffffff;
+        }
+
+        .post-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0066ff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .post-date {
+            font-size: 12px;
+            color: #6699ff;
+            margin-bottom: 12px;
+        }
+
+        .post-description {
+            font-size: 14px;
+            color: #0066ff;
+            font-weight: 500;
+        }
+
+        .empty-state {
+            color: #6699ff;
+            font-style: italic;
+            text-align: center;
+            padding: 60px 0;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            color: #0066ff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px solid #0066ff;
+        }
+
+        .back-link:hover {
+            color: #6699ff;
+            border-color: #6699ff;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="plant-canvas"></canvas>
+
+    <p class="title">b l o g</p>
+    <p style="margin: 0px 0px 35px; text-align: center;">thoughts &amp; things</p>
+
+    <div class="layout">
+        <a href="../index.html" class="back-link">&larr; home</a>
+        <div class="post-list" id="post-list">
+            <p class="empty-state">loading posts...</p>
+        </div>
+    </div>
+
+    <script type="module" src="../js/main.js"></script>
+    <script>
+        async function loadPosts() {
+            const container = document.getElementById('post-list');
+            try {
+                const res = await fetch('./posts.json');
+                const posts = await res.json();
+
+                if (posts.length === 0) {
+                    container.innerHTML = '<p class="empty-state">no posts yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = posts
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .map(post => `
+                        <a class="post-card" href="./post.html?slug=${post.slug}">
+                            <div class="post-title">${post.title}</div>
+                            <div class="post-date">${post.date}</div>
+                            <div class="post-description">${post.description}</div>
+                        </a>
+                    `).join('');
+            } catch (e) {
+                container.innerHTML = '<p class="empty-state">could not load posts.</p>';
+            }
+        }
+
+        loadPosts();
+    </script>
+</body>
+</html>
