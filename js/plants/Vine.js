@@ -12,32 +12,45 @@ export default class Vine {
         this.growthSpeed = 0.25;
         this.growth      = 0;
 
-        this.dirX = (Math.random() - 0.5) * 0.3;
-        this.dirY = 1;
+        this.angle        = Math.PI / 2 + (Math.random() - 0.5) * 0.4;
+        this.angleVel     = 0;
+        this.angleAcc     = 0;
+        this.gravityBias  = 0.10; // stronger pull toward vertical
+        this.curlStrength = 0.06;
+        this.damping      = 0.82;
 
         this.reachedBottom = false;
         this.groundDirX    = Math.random() < 0.5 ? 1 : -1;
 
+        this.noiseSeed = Math.random() * 1000;
+        this.noiseT    = 0;
+
         this.flowerPhase = Math.random() * Math.PI * 2;
         this.flowerSpeed = 0.003;
 
-        // ── Palette from the provided colour swatch ────────────────────────
-        // Dark forest greens → mid greens → yellow-greens
-        this.stemColor   = '#147539'; // deep forest green for stem
+        this.stemColors  = ['#147539', '#1a6b35', '#0f5c2a', '#1e7040'];
+        this.stemColor   = '#147539';
         this.leafPalette = [
-            '#006838', // darkest
+            '#006838',
             '#147539',
             '#28833a',
             '#3c903b',
             '#4f9d3c',
             '#63aa3d',
             '#77b83e',
-            '#8bc53f', // lightest leaf green
-            '#a3ce29', // yellow-green highlight
+            '#8bc53f',
+            '#a3ce29',
         ];
 
-        // Orange-yellow flower palette
         this.flowerColors = ['#ff9900', '#ffb833', '#ffcc00', '#ff7700', '#ffdd44'];
+    }
+
+    _noise(t) {
+        return (
+            Math.sin(t * 0.8  + this.noiseSeed) * 0.5 +
+            Math.sin(t * 1.7  + this.noiseSeed * 1.3) * 0.3 +
+            Math.sin(t * 3.1  + this.noiseSeed * 0.7) * 0.2
+        );
     }
 
     update() {
@@ -68,27 +81,36 @@ export default class Vine {
         let nx, ny;
 
         if (!this.reachedBottom) {
-            this.dirX += (Math.random() - 0.5) * 0.25;
-            this.dirX *= 0.85;
-            const mag = Math.sqrt(this.dirX ** 2 + this.dirY ** 2);
-            nx = tip.x + (this.dirX / mag) * ps;
-            ny = tip.y + (this.dirY / mag) * ps;
+            this.noiseT += 0.18;
+
+            this.angleAcc = this._noise(this.noiseT) * this.curlStrength;
+
+            const angleDiff = Math.PI / 2 - this.angle;
+            this.angleAcc += angleDiff * this.gravityBias;
+
+            this.angleVel = (this.angleVel + this.angleAcc) * this.damping;
+            this.angle   += this.angleVel;
+
+            // Clamp to ±40° from vertical — allows curves but not horizontal
+            const maxAngle = Math.PI / 2 + Math.PI * 0.22;
+            const minAngle = Math.PI / 2 - Math.PI * 0.22;
+            this.angle = Math.max(minAngle, Math.min(maxAngle, this.angle));
+
+            nx = tip.x + Math.cos(this.angle) * ps;
+            ny = tip.y + Math.sin(this.angle) * ps;
 
             if (ny >= window.innerHeight - ps * 2) {
                 ny = window.innerHeight - ps * 2;
                 this.reachedBottom = true;
-                // 75% chance the vine just stops at the ground
                 if (Math.random() < 0.75) this.maxLength = this.segments.length + 1;
             }
         } else {
             nx = tip.x + this.groundDirX * ps;
             ny = tip.y + (Math.random() - 0.5) * ps * 0.3;
             ny = Math.min(ny, window.innerHeight - ps);
+            nx = Math.round(nx / ps) * ps;
+            ny = Math.round(ny / ps) * ps;
         }
-
-        // Snap to pixel grid
-        nx = Math.round(nx / ps) * ps;
-        ny = Math.round(ny / ps) * ps;
 
         this.segments.push({ x: nx, y: ny, age: 0 });
 
@@ -98,9 +120,10 @@ export default class Vine {
     }
 
     addLeaf(x, y, segIdx) {
-        const side = this.leaves.length % 2 === 0 ? 1 : -1;
+        const side  = this.leaves.length % 2 === 0 ? 1 : -1;
+        const scale = 1.0 + Math.random() * 1.5;
         this.leaves.push({
-            x, y, side,
+            x, y, side, scale,
             age: 0,
             segmentIndex: segIdx,
             swayOffset: Math.random() * Math.PI * 2
@@ -124,57 +147,61 @@ export default class Vine {
         ctx.globalAlpha = 1;
     }
 
-    // ── Stem: drawn as snapped pixel squares, not a smooth line ─────────────
     drawStem(ctx) {
-        const ps = this.pixelSize * 0.5;
-        this.segments.forEach(s => {
-            const alpha = Math.min(1, s.age / 15);
-            if (alpha <= 0) return;
-            ctx.fillStyle   = this.stemColor;
+        const thickness = this.pixelSize * 0.55;
+        ctx.lineCap  = 'square';
+        ctx.lineJoin = 'miter';
+
+        for (let i = 1; i < this.segments.length; i++) {
+            const a     = this.segments[i - 1];
+            const b     = this.segments[i];
+            const alpha = Math.min(1, b.age / 15);
+            if (alpha <= 0) continue;
+
+            // Deterministic colour per segment
+            const noise = Math.sin(a.x * 0.31 + a.y * 0.47 + i * 0.19);
+            const ci    = Math.floor((noise * 0.5 + 0.5) * this.stemColors.length);
+            ctx.strokeStyle = this.stemColors[Math.min(ci, this.stemColors.length - 1)];
+            ctx.lineWidth   = thickness;
             ctx.globalAlpha = alpha;
-            ctx.fillRect(s.x, s.y, ps, ps);
-        });
+
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+        }
         ctx.globalAlpha = 1;
     }
 
-    // ── Leaf: oval grid of small tightly-packed pixels, colour variation ────
     drawLeaf(ctx, leaf) {
         const alpha = Math.min(1, leaf.age / 20);
         if (alpha <= 0) return;
 
-        const ps = this.pixelSize * 0.5; // small pixel, no gap
+        const ps = this.pixelSize * 0.5 * leaf.scale;
         const s  = leaf.side;
 
         ctx.globalAlpha = alpha;
 
         const grid = [
-            // tip
             [0, -6],
-            // upper narrow
             [-1,-5],[0,-5],[1,-5],
-            // widening
             [-1,-4],[0,-4],[1,-4],[2,-4],
             [-2,-3],[0,-3],[1,-3],[2,-3],
-            // widest middle
             [-2,-2],[-1,-2],[0,-2],[1,-2],[2,-2],[3,-2],
             [-2,-1],[-1,-1],[0,-1],[1,-1],[2,-1],[3,-1],
             [-2, 0],[-1, 0],[0, 0],[1, 0],[2, 0],[3, 0],
-            // narrowing lower
             [-1, 1],[0, 1],[1, 1],[2, 1],[3, 1],
             [-1, 2],[0, 2],[1, 2],[2, 2],
             [0,  3],[1, 3],
-            // stem nub
             [0,  4],
         ];
 
         grid.forEach(([col, row]) => {
-            // Shade: lighter top-left, darker bottom-right
-            const nx = (col + 3) / 6;
-            const ny = (row + 6) / 12;
-            // Add a little per-pixel noise so adjacent cells aren't identical
+            const nx    = (col + 3) / 6;
+            const ny    = (row + 6) / 12;
             const noise = (Math.sin(col * 7.3 + row * 13.1) * 0.5 + 0.5) * 0.25;
             const shade = nx * 0.4 + ny * 0.35 + noise;
-            const pi = Math.min(
+            const pi    = Math.min(
                 this.leafPalette.length - 1,
                 Math.floor(shade * (this.leafPalette.length - 1))
             );
@@ -185,7 +212,6 @@ export default class Vine {
         ctx.globalAlpha = 1;
     }
 
-    // ── Flower: 4-petal cross with bright yellow centre ─────────────────────
     drawFlower(ctx, f) {
         const ps      = this.pixelSize * 0.5;
         const lifePct = f.age / 350;
@@ -204,7 +230,6 @@ export default class Vine {
             ctx.fillRect(gx + dx * ps, gy + dy * ps, ps, ps);
         });
 
-        // Yellow centre
         ctx.fillStyle   = '#ffee55';
         ctx.globalAlpha = fa;
         ctx.fillRect(gx, gy, ps, ps);

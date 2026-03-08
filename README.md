@@ -1,5 +1,6 @@
-# hanako keney's personal website 
-vanilla js website to use as my coding portfolio
+# my space on the internet
+
+vanilla js website
 
 currently under construction...
 
@@ -19,11 +20,12 @@ ev3rshade.com/
 │   └── plants.css                  # Plant canvas styles (optional)
 │
 ├── js/
-│   ├── main.js                     # Main entry point - initializes everything
+│   ├── main.js                     # Main entry point
 │   │
 │   └── plants/                     # Plant system
 │       ├── PlantManager.js         # Manages all plants
 │       ├── Fern.js                 # Fern plant class
+|       ├── Ferncluster.js          # Ferncluster plant class
 │       ├── Moss.js                 # Moss plant class
 │       └── Vine.js                 # Vine plant class
 │
@@ -32,8 +34,9 @@ ev3rshade.com/
 │   │   ├── hydrangea1.jpg
 │   │   └── hydrangea2.jpg
 │   │
-│   └── fonts/                      # Custom fonts if needed
-│       └── PottaOne.woff2
+│   └── fonts/                      # Custom fonts
+|       ├── DotGothic16
+│       └── PottaOne
 │
 └── README.md                       # Project documentation
 ```
