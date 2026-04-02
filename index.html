@@ -7,35 +7,49 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<!-- Canvas overlay for plants -->
-        <canvas id="plant-canvas"></canvas>
+    <canvas id="plant-canvas"></canvas>
 
-        <!-- Controls -->
-        <div class="controls">
-            <h3>plant tester</h3>
-            <button onclick="plantManager.plantRandomFern()">Plant Fern</button>
-            <button onclick="plantManager.plantRandomMoss()">Plant Moss</button>
-            <button onclick="plantManager.plantRandomVine()">Plant Vine</button>
-            <button onclick="plantManager.clearAll()">Clear All</button>
-            <div class="plant-count">Plants: <span id="plant-count">0</span></div>
+    <div id="terminal">
+        <div id="output"></div>
+        <div id="input-line">
+            <span id="prompt"></span>
+            <input id="cmd-input" autofocus autocomplete="off" spellcheck="false">
         </div>
+    </div>
 
-        <p class="title">w e b s i t e</p>
-        <p style="margin: 0px 0px 35px;text-align: center;"> Welcome  |  ようこそ </p>
-        <div class="layout">
-            <div class="navbar">
-                <a href="#">hanako keney</a>
-                <p class="caption">(about me)</p>
-                <a href="./project.html">projects</a>
-                <p class="caption">cool things i've made</p>
-                <a href="./blog/index.html">blog</a>
-                <p class="caption">my place in the world</p>
+    <!-- Vim overlay -->
+    <div id="vim-overlay" class="hidden">
+        <div id="vim-content"></div>
+        <div id="vim-statusbar">
+            <span id="vim-file"></span>
+            <span id="vim-mode-label"></span>
+        </div>
+        <div id="vim-cmdline"></div>
+    </div>
+
+    <!-- GUI window -->
+    <div id="gui-window" class="hidden">
+        <div id="gui-titlebar">
+            <span>ev3rshade</span>
+            <button id="gui-close">✕</button>
+        </div>
+        <div id="gui-body">
+            <p class="title">h e l l o</p>
+            <p style="margin: 0 0 35px; text-align: center;">Welcome &nbsp;|&nbsp; ようこそ</p>
+            <div class="layout">
+                <div class="navbar">
+                    <a href="#">hanako keney</a>
+                    <p class="caption">(about me)</p>
+                    <a href="./project.html">projects</a>
+                    <p class="caption">cool things i've made</p>
+                    <a href="./blog/index.html">blog</a>
+                    <p class="caption">my place in the world</p>
+                </div>
             </div>
         </div>
-        
-        <p class="citation">"<a rel="noopener noreferrer" href="https://www.flickr.com/photos/115665376@N07/26365080812">Tessellated Clover Folding</a>" by <a rel="noopener noreferrer" href="https://www.flickr.com/photos/115665376@N07">modular.dodecahedron</a> is licensed under <a rel="noopener noreferrer" href="https://creativecommons.org/licenses/by-sa/2.0/?ref=openverse">CC BY-SA 2.0</a>.</p>
-    
-    <!-- Load plant modules -->
+    </div>
+
     <script type="module" src="js/main.js"></script>
+    <script src="js/terminal.js"></script>
 </body>
 </html>
