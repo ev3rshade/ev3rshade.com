@@ -25,25 +25,6 @@ export default class PlantManager {
         return Array.from(document.querySelectorAll('.title, .navbar, .imagewrapper, .navbar a'));
     }
 
-    getElementBorderPixels(element) {
-        const rect = element.getBoundingClientRect();
-        const pixels = [];
-        const step = this.pixelSize;
-        for (let x = rect.left; x < rect.right; x += step) {
-            pixels.push({ x: Math.floor(x), y: Math.floor(rect.top), edge: 'top' });
-        }
-        for (let x = rect.left; x < rect.right; x += step) {
-            pixels.push({ x: Math.floor(x), y: Math.floor(rect.bottom), edge: 'bottom' });
-        }
-        for (let y = rect.top; y < rect.bottom; y += step) {
-            pixels.push({ x: Math.floor(rect.left), y: Math.floor(y), edge: 'left' });
-        }
-        for (let y = rect.top; y < rect.bottom; y += step) {
-            pixels.push({ x: Math.floor(rect.right), y: Math.floor(y), edge: 'right' });
-        }
-        return pixels;
-    }
-
     // ── Fern: 70% ground, 30% element edge ────────────────────────────────
     plantRandomFern() {
         if (Math.random() < 0.7) {
@@ -94,17 +75,6 @@ export default class PlantManager {
 
         this.plants.push(new FernCluster(seedX, seedY, this.pixelSize, this.canvas.height));
         console.log('🌱 Planted ground fern cluster at', { x: seedX, y: seedY });
-    }
-
-    // Convenience: fill the ground with evenly spaced fern clusters
-    plantGroundRow(count = 10) {
-        const spacing = this.canvas.width / count;
-        for (let i = 0; i < count; i++) {
-            // Randomise position within each slot so it doesn't look mechanical
-            const seedX = spacing * i + Math.random() * spacing;
-            this.plantGroundFern(seedX);
-        }
-        console.log(`🌿 Planted ${count} ground fern clusters along the bottom`);
     }
 
     // ── Moss ───────────────────────────────────────────────────────────────

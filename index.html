@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ev3rshade</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
     <canvas id="plant-canvas"></canvas>
@@ -31,25 +34,24 @@
     <div id="gui-window" class="hidden">
         <div id="gui-titlebar">
             <span>ev3rshade</span>
+            <nav id="gui-nav">
+                <button onclick="guiGo('home')">~</button>
+                <button onclick="guiGo('about-me')">about</button>
+                <button onclick="guiGo('projects')">projects</button>
+                <button onclick="guiGo('blog')">blog</button>
+            </nav>
             <button id="gui-close">✕</button>
         </div>
-        <div id="gui-body">
-            <p class="title">h e l l o</p>
-            <p style="margin: 0 0 35px; text-align: center;">Welcome &nbsp;|&nbsp; ようこそ</p>
-            <div class="layout">
-                <div class="navbar">
-                    <a href="#">hanako keney</a>
-                    <p class="caption">(about me)</p>
-                    <a href="./project.html">projects</a>
-                    <p class="caption">cool things i've made</p>
-                    <a href="./blog/index.html">blog</a>
-                    <p class="caption">my place in the world</p>
-                </div>
-            </div>
-        </div>
+        <div id="gui-page"></div>
+        <div id="gui-resize"></div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script type="module" src="js/main.js"></script>
+    <script src="js/vfs.js"></script>
+    <script src="js/execute.js"></script>
+    <script src="js/vim.js"></script>
     <script src="js/terminal.js"></script>
+    <script src="js/gui.js"></script>
 </body>
 </html>
