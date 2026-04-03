@@ -132,13 +132,13 @@
         "description": "list of articles that shaped how i think about programming."
     },
     {
-        "slug": "coffee-reviews",
+        "slug": "!coffee-reviews",
         "title": "Coffee Reviews",
         "date": "",
         "description": "reviews of coffee shops i've visited."
     },
     {
-        "slug": "hanako-hobbies",
+        "slug": "!hanako-hobbies",
         "title": "Comprehensive List of Hanako's Hobbies",
         "date": "",
         "description": "ongoing list of hobbies."
