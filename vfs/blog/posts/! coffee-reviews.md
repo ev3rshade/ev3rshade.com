@@ -3,12 +3,11 @@
 #### Denver
 - Coffeetime
 - Bardos
-- Matcha latte
-- Turmeric latte
-- Iced tea
-- Drip coffee
-- Iced shaken espresso
-- Starbucks
+	- Matcha latte
+	- Turmeric latte
+	- Iced tea
+	- Drip coffee
+	- Iced shaken espresso
 
 ### Indiana
 #### West Lafayette
@@ -17,10 +16,10 @@
 	- Pistachio muffin
 	- Honey baby
 - Greyhouse
-- Saxby's
-	- Milk & Honey cold brew
+
 - Lavazza
 	- Orange mocha mio
+- Mochaland
 
 ## Pennsylvania
 ### Philadelphia
@@ -40,3 +39,9 @@
 	- Hojicha latte
 	- Matcha latte
 	- Plain hojicha
+
+
+## Chain
+- Starbucks
+- Saxby's
+	- Milk & Honey cold brew
