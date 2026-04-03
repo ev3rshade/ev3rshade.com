@@ -94,6 +94,9 @@ body {
 .grep-match  { color: var(--fg); font-weight: bold; }
 .help-text   { color: var(--fg); }
 
+.plant-art { color: #2d8a2d; }
+body.dark .plant-art { color: #4caf50; }
+
 .ls-row  { display: flex; gap: 20px; flex-wrap: wrap; }
 .ls-dir  { color: var(--fg); font-weight: bold; }
 .ls-file { color: var(--fg); }

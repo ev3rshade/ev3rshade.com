@@ -145,7 +145,12 @@ async function find(args) {
     walk(base);
 }
 
-function clear()     { output.innerHTML = ''; window.plantManager?.clearAll(); }
+const plantTimers = [];
+function clear() {
+    output.innerHTML = '';
+    plantTimers.forEach(clearInterval);
+    plantTimers.length = 0;
+}
 function guiPlease() { guiWindow.classList.remove('hidden'); guiGo('home'); }
 
 function theme([mode] = []) {
@@ -163,11 +168,8 @@ function help() {
         '  grep <pattern> <file>   search for pattern in file',
         '  wc <file>               word, line, and char count',
         '  find [path] [-name <pattern>] [-type f|d]',
-        '  vim <file>              open file (editable: .termrc)',
-        '                            i/a/A/o/O → insert   ESC → normal',
-        '                            v/V → visual/visual-line   d → delete',
-        '                            u → undo   :w → save   :q/:wq → quit',
-        '  plant <fern|moss|vine>  grow a plant',
+        '  vim <file>              open file read-only  (:q to quit)',
+        '  plant                   grow an ascii plant',
         '  clear                   clear terminal + plants',
         '  theme <light|dark>      toggle color theme',
         '  gui-please              open GUI window',
@@ -175,13 +177,65 @@ function help() {
     ].join('\n'), 'help-text');
 }
 
-function plant([type] = []) {
-    const pm = window.plantManager;
-    if (!pm) return print('plant: not ready yet', 'err');
-    switch (type?.toLowerCase()) {
-        case 'fern': pm.plantRandomFern(); print('planted a fern.'); break;
-        case 'moss': pm.plantRandomMoss(); print('planted some moss.'); break;
-        case 'vine': pm.plantRandomVine(); print('planted a vine.'); break;
-        default: print('usage: plant <fern|moss|vine>', 'err');
+// ── ASCII plant generation ────────────────────────────────────────────────────
+
+const PLANT_TYPES = [
+    [',,,', '{{{}}}', ' ~Y~ ', ' \\|/ '],
+    [' ,', '/o\\', ' | ', '\\|/'],
+    ['@@@@', '@@()@@', ' @@@@ ', '  ||  '],
+    ['wWWWw', '(___)', ' \\/  '],
+    ['.oOo.', 'OO()OO', "'OOOO'", ' \\|/ '],
+    ['_(_)_', '(_)@(_)', '  (_) ', ' \\|/ '],
+    ['(o\\/o)', ' )--( ', ' \\|/ '],
+    [' _ _ ', "{ ' }", "{ .!. }", " ',Y,' ", ' \\|/ '],
+];
+
+function makePlant() {
+    const W = 47;
+    const count = 4 + Math.floor(Math.random() * 5);
+    // spread plants evenly with some jitter
+    const plants = Array.from({ length: count }, (_, i) => ({
+        rows:  PLANT_TYPES[Math.floor(Math.random() * PLANT_TYPES.length)],
+        x:     Math.floor((i + 0.3 + Math.random() * 0.4) * W / count),
+        phase: Math.random() * Math.PI * 2,
+    }));
+    return { plants, W };
+}
+
+function renderPlant({ plants, W }, t) {
+    const maxH = Math.max(...plants.map(p => p.rows.length));
+    const H = maxH + 2;
+    const grid = Array.from({ length: H }, () => Array(W).fill(' '));
+
+    // dense floor
+    const FLOOR = '\\|/,.|/\\|/.,\\|//.|/\\,|/\\.|/\\|/,.|/\\|/.';
+    for (let x = 0; x < W; x++) grid[H - 1][x] = '^';
+    for (let x = 0; x < W; x++) grid[H - 2][x] = FLOOR[x % FLOOR.length];
+
+    for (const p of plants) {
+        const sway = Math.round(Math.sin(t * 0.06 + p.phase));
+        for (let r = 0; r < p.rows.length; r++) {
+            const row  = H - 3 - (p.rows.length - 1 - r);
+            if (row < 0) continue;
+            const line = p.rows[r];
+            const ox   = p.x - Math.floor(line.length / 2) + sway;
+            for (let c = 0; c < line.length; c++) {
+                const x = ox + c;
+                if (x >= 0 && x < W && line[c] !== ' ') grid[row][x] = line[c];
+            }
+        }
     }
+
+    return grid.map(r => r.join('')).join('\n');
+}
+
+function plant() {
+    const art = makePlant();
+    const el  = document.createElement('pre');
+    el.className = 'plant-art';
+    output.appendChild(el);
+    terminal.scrollTop = terminal.scrollHeight;
+    let t = 0;
+    const id = setInterval(() => { el.textContent = renderPlant(art, t++); }, 120);
+    plantTimers.push(id);
 }
