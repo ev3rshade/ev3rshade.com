@@ -1,18 +1,18 @@
 main
 - [ ] running
 - [ ] coding
-- [ ] computers
 - [ ] reading
-- [ ] digital archive
+- [ ] digital archive (Obsidian)
+- [ ] linux
 
 what i'm currently trying
 - [ ] break dancing
 
 secondary
 - [ ] gym
+- [ ] skateboarding
 - [ ] drawing (traditional/digital)
 - [ ] singing
-- [ ] making playlists
 
 every so often
 - [ ] writing/journaling 
@@ -29,3 +29,4 @@ rarely
 past
 - [ ] karate
 - [ ] piano
+- [ ] making playlists
