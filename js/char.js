@@ -9,7 +9,7 @@ const WALK_FRAME_INTERVAL = 0.3;
 const WALK_FRAMES = ['public/assets/walk1.png', 'public/assets/walk2.png'];
 const FRAMES = { standing: 'public/assets/stand.png', grabbed: 'public/assets/hanging.png', falling: 'public/assets/falling.png', recovering: 'public/assets/getting-up.png' };
 
-let state = 'standing', x = 100, y = 100;
+let state = 'standing', x = 350, y =240;
 let targetX = x, targetY = y;
 let vy = 0, fallLimit = 0;
 let facingRight = true, stateTimer = 0;
