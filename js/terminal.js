@@ -75,7 +75,7 @@ function print(text, cls) {
 
 // ── Command dispatch ──────────────────────────────────────────────────────────
 
-const COMMANDS = { ls, cd, cat, grep, wc, find, vim: openVimCmd, plant, clear, theme, help, 'gui-please': guiPlease };
+const COMMANDS = { ls, cd, cat, grep, wc, find, vim: openVimCmd, plant, clear, theme, help, 'gui-please': guiPlease, chiikawa };
 
 
 // ── Keyboard handlers ─────────────────────────────────────────────────────────
