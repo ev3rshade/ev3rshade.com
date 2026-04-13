@@ -191,8 +191,24 @@ const PLANT_TYPES = [
     [' _ _ ', "{ ' }", "{ .!. }", " ',Y,' ", ' \\|/ '],
 ];
 
+function getTerminalCols() {
+    // Measure actual character width so plants fit any screen size
+    const span = document.createElement('span');
+    Object.assign(span.style, {
+        visibility: 'hidden', position: 'absolute', whiteSpace: 'pre',
+        fontFamily: getComputedStyle(output).fontFamily,
+        fontSize:   getComputedStyle(output).fontSize,
+    });
+    span.textContent = 'M'.repeat(20);
+    document.body.appendChild(span);
+    const charW = span.getBoundingClientRect().width / 20;
+    document.body.removeChild(span);
+    const pad = parseInt(getComputedStyle(terminal).paddingLeft) * 2;
+    return Math.max(20, Math.floor((terminal.clientWidth - pad) / charW));
+}
+
 function makePlant() {
-    const W = 47;
+    const W = getTerminalCols();
     const count = 4 + Math.floor(Math.random() * 5);
     // spread plants evenly with some jitter
     const plants = Array.from({ length: count }, (_, i) => ({
