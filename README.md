@@ -100,3 +100,15 @@ Colors are CSS custom properties (`--bg`, `--fg`, `--dim`, etc.) defined in [css
 1. Write a markdown file in `vfs/blog/posts/`
 2. Run `node sync-posts.js` to regenerate `vfs/blog/posts.json`
 3. The post will appear in `ls /blog/posts`, `cat`, vim, and the GUI blog list
+
+
+## Sections that Have been Vibe Coded
+1. Vim - I did not code any of the vim implementation
+
+2. Parts of README - the file structure and the command table.
+
+3. The plant script -- every website iteration I try to get Claude to make generated plants. I think it's an interesting exercise and find it a little silly.
+
+4. termrc functionality
+
+5. CSS styling. I did, however, design the color palette and picked the fonts and ascii art.

@@ -9,6 +9,8 @@
 
 ようこそ
 
+[prev](https://justhapi.github.io/Portfolio/) < web-ring > [next]()
+
 type "help" to see available commands
 type "ls" to see what's here
 type "gui-please" if you prefer a visual interface

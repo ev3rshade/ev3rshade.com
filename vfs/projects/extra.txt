@@ -1,0 +1,36 @@
+###################
+##### ONGOING #####
+###################
+
+1 
+
+---
+2
+
+---
+3 second vault -- my obsidian vault. 
+
+from snippets of my journal to notes about the inner working of an operating system, my vault is my primary method of capturing my life. 
+
+-- i am currently working on adding properties to each of my files and creating a separated playground to play with LLM usage in my vault.
+
+you can view a submodule of it [here](https://github.com/ev3rshade/collegeNotes_submodule)
+
+---
+4 arch linux -- my arch linux setup. 
+
+i was unable to back my dotfiles up before my old computer fried itself, and i don't have a repsoitoryfor them yet.
+
+-- i am currently working on reinstalling arch on a new computer that i purchased.
+
+
+
+################
+##### PAST #####
+################
+
+1 PGSG grant application portal -- a grant application portal for the Purdue Graduate Student Government. 
+
+- architected the PostgreSQL schema and implemented it in FastAPI.
+- connected backend API calls to frontend completing website functionality
+- containerized application using Docker to ensure deployment across dev and prod envs
