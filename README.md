@@ -14,7 +14,7 @@ ev3rshade.com/
 ├── js/
 │   ├── vfs.js                  # virtual filesystem (FS map, resolvePath, fetchFile)
 │   ├── execute.js              # command implementations (ls, cd, cat, grep, wc, find,
-│   │                           #   plant, clear, theme, help, gui-please, chiikawa)
+│   │                           # plant, clear, theme, help, gui-please, chiikawa)
 │   ├── terminal.js             # input loop, tab-complete, history, prompt, DOMContentLoaded init
 │   ├── vim.js                  # read-only vim viewer overlay (:q to quit, hjkl/gg/G//)
 │   ├── gui.js                  # floating GUI window (drag, resize, markdown pages)
