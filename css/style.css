@@ -14,13 +14,13 @@
     --file:   #003399;
 }
 body.dark {
-    --bg:     #0d1117;
-    --fg:     #7aadff;
-    --dim:    #3d6a9e;
-    --faint:  #2a4060;
-    --border: #1a3050;
+    --bg:     #092132;
+    --fg:     #00ffaa;
+    --dim:    #3d9e72;
+    --faint:  #2a5f60;
+    --border: #1a3f50;
     --err:    #ff5555;
-    --file:   #aaccff;
+    --file:   #99b6bb;
 }
 
 * {
@@ -118,17 +118,17 @@ body {
 .grep-match  { color: var(--fg); font-weight: bold; }
 .help-text   { color: var(--fg); }
 
-.plant-art { color: #2d8a2d; }
-body.dark .plant-art { color: #4caf50; }
+.plant-art { color: #40d240; }
+body.dark .plant-art { color: #5cdf61; }
 
 /* glowing blue flowers inside plant art */
 .plant-art .pf {
-    color: #cb7dfc;
-    text-shadow: 0 0 3px #c57dfc, 0 0 8px #b538f8, 0 0 18px #910ee9;
+    color: #fcd67d;
+    text-shadow: 0 0 3px #fcc97d, 0 0 8px #f8b838, 0 0 18px #e9bd0e;
 }
 body.dark .plant-art .pf {
-    color: #f2bafd;
-    text-shadow: 0 0 4px #ddbafd, 0 0 10px #c17dfc, 0 0 22px #9e38f8;
+    color: #fdf8ba;
+    text-shadow: 0 0 4px #fde7ba, 0 0 10px #fce07d, 0 0 22px #f8b538;
 }
 
 /* moss overlay — covers full terminal viewport, on top of existing content */
