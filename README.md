@@ -111,4 +111,4 @@ Colors are CSS custom properties (`--bg`, `--fg`, `--dim`, etc.) defined in [css
 
 4. termrc functionality
 
-5. CSS styling. I did, however, design the color palette and picked the fonts and ascii art.
+5. CSS styling. However, I designed the color palette and ascii art and picked the fonts.
