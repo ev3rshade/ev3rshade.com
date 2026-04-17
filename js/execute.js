@@ -174,7 +174,6 @@ function help() {
         '  clear                   clear terminal + plants',
         '  theme <light|dark>      toggle color theme',
         '  gui-please              open GUI window',
-        '  chiikawa <show|hide>     show/hide the character',
         '  help                    show this message',
     ].join('\n'), 'help-text');
 }
@@ -614,18 +613,6 @@ function renderPlant({ mosses, W, H }) {
     return rows.join('\n');
 }
 
-function chiikawa([sub] = []) {
-    const charenv = document.getElementById('charenv');
-    if (sub === 'hide') {
-        charenv.classList.add('char-hidden');
-        print('chiikawa: bye bye...');
-    } else if (sub === 'show') {
-        charenv.classList.remove('char-hidden');
-        print('chiikawa: yay!');
-    } else {
-        print('usage: chiikawa <show|hide>', 'err');
-    }
-}
 
 function plant() {
     const art = makePlant();

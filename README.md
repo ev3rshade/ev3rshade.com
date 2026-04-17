@@ -14,17 +14,14 @@ ev3rshade.com/
 ├── js/
 │   ├── vfs.js                  # virtual filesystem (FS map, resolvePath, fetchFile)
 │   ├── execute.js              # command implementations (ls, cd, cat, grep, wc, find,
-│   │                           # plant, clear, theme, help, gui-please, chiikawa)
+│   │                           # plant, clear, theme, help, gui-please, ca)
 │   ├── terminal.js             # input loop, tab-complete, history, prompt, DOMContentLoaded init
 │   ├── vim.js                  # read-only vim viewer overlay (:q to quit, hjkl/gg/G//)
-│   ├── gui.js                  # floating GUI window (drag, resize, markdown pages)
-│   └── char.js                 # chiikawa sprite — walks, falls, can be grabbed/dragged
+│   └── gui.js                  # floating GUI window (drag, resize, markdown pages)
 │
 ├── fonts/
 │   ├── DotGothic16/            # pixel font (fallback)
 │   └── Fira_Code/              # monospace font (primary)
-│
-├── public/assets/              # chiikawa sprite frames (stand, walk1/2, hanging, falling, getting-up)
 │
 ├── vfs/                        # content served as the virtual filesystem
 │   ├── README.md               # home page (shown on load and on `cd ~`)
@@ -81,7 +78,6 @@ Blog post entries are dynamic — on init, `posts.json` is fetched and the `/blo
 | `clear` | clear output + stop plant animations |
 | `theme [light\|dark]` | toggle or set color theme |
 | `gui-please` | open the floating GUI window |
-| `chiikawa <show\|hide>` | show or hide the chiikawa sprite |
 | `help` | print command list |
 
 **Tab completion** works for both command names and file/directory paths.  
