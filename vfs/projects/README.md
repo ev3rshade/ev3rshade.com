@@ -14,15 +14,15 @@ read the summary below for basic information and a link to their respective GitH
 1
 
 2 ev3rshade.com | this website
-  <vanilla js> <html> <css> <claude code>
+  \<vanilla js\> \<html\> \<css\> \<claude code\>
 
 3 second vault | my obsidian vault
-  <markdown> <git> <documentation>
+  \<markdown\> \<git\> \<documentation\>
 
 4 arch linux | my arch linux setup
-  <c/c++> <linux systems adminstration> <lua>
+  \<c/c++\> \<linux systems adminstration\> \<lua\>
 
 
 ### past ###
 1 PGSG Grant Application Portal
-  <PostgreSQL> <FastAPI> <React> <Docker>
+  \<PostgreSQL\> \<FastAPI\> \<React\> \<Docker\>
