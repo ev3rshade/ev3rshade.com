@@ -1,21 +1,21 @@
 [
     {
-        "slug": "2026-03-08",
-        "title": "2026-03-08",
-        "date": "2026-03-08",
-        "description": ""
+        "slug": "coding-articles",
+        "title": "Articles That Got Me Into Coding",
+        "date": "",
+        "description": "list of articles that shaped how i think about programming."
     },
     {
-        "slug": "2026-03-21",
-        "title": "2026-03-21",
-        "date": "2026-03-21",
-        "description": ""
+        "slug": "!coffee-reviews",
+        "title": "Coffee Reviews",
+        "date": "",
+        "description": "reviews of coffee shops i've visited."
     },
     {
-        "slug": "2026-04-24",
-        "title": "2026-04-24",
-        "date": "2026-04-24",
-        "description": ""
+        "slug": "!hanako-hobbies",
+        "title": "Comprehensive List of Hanako's Hobbies",
+        "date": "",
+        "description": "ongoing list of hobbies."
     },
     {
         "slug": "2023-07-18",
@@ -143,22 +143,16 @@
         "date": "2026-02-14",
         "description": "bad day."
     },
-    {
-        "slug": "coding-articles",
-        "title": "Articles That Got Me Into Coding",
-        "date": "",
-        "description": "list of articles that shaped how i think about programming."
+        {
+        "slug": "2026-03-08",
+        "title": "2026-03-08",
+        "date": "2026-03-08",
+        "description": ""
     },
     {
-        "slug": "!coffee-reviews",
-        "title": "Coffee Reviews",
-        "date": "",
-        "description": "reviews of coffee shops i've visited."
-    },
-    {
-        "slug": "!hanako-hobbies",
-        "title": "Comprehensive List of Hanako's Hobbies",
-        "date": "",
-        "description": "ongoing list of hobbies."
+        "slug": "2026-03-21",
+        "title": "2026-03-21",
+        "date": "2026-03-21",
+        "description": ""
     }
 ]
