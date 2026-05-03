@@ -32,6 +32,8 @@ for (const slug of diskSlugs) {
     }
 }
 
+updated.sort((a, b) => b.date.localeCompare(a.date));
+
 await writeFile(postsJson, JSON.stringify(updated, null, 4) + '\n');
 
 if (removed > 0) console.log(`Removed ${removed} post(s) with no matching .md file.`);
