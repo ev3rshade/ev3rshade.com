@@ -5,27 +5,27 @@
 
 /* Default colors — overridden at runtime by parseTermrc() from vfs/termrc */
 :root {
-    --bg:     #efe9d7;
-    --fg:     #116f40;
-    --dim:    #82c3af;
-    --faint:  #a0cc99;
-    --border: #d7ffcc;
-    --err:    #cc3300;
-    --file:   #13a454;
+    --bg:     #177164;
+    --fg:     hsl(0, 0%, 100%);
+    --dim:    #7dc1ad;
+    --faint:  #51989a;
+    --border: #1a3f50;
+    --err:    #ED5942;
+    --file:   #c6e5a5;
 }
 body.dark {
-    --bg:     #092132;
-    --fg:     #00ffaa;
-    --dim:    #3d9e72;
+    --bg:     #031728;
+    --fg:     #0AB855;
+    --dim:    #06684D;
     --faint:  #2a5f60;
     --border: #1a3f50;
-    --err:    #ff5555;
-    --file:   #99bba8;
+    --err:    #ED5942;
+    --file:   #ECFFEC;
 }
-
+#078F4A
 * {
     margin: 0;
-    padding: 0;
+    padding: 5;
     box-sizing: border-box;
 }
 
@@ -35,7 +35,7 @@ body {
     font-family: 'Fira Code', 'DotGothic16', monospace;
     background: var(--bg);
     color: var(--fg);
-    line-height: 1.6;
+    line-height: 1.4;
 }
 
 #charenv {
@@ -84,9 +84,10 @@ body {
     white-space: pre-wrap;
     word-break: break-word;
     font-size: 14px;
+    font-weight: bold;
 }
 
-#output div { margin: 1px 0; }
+#output div { margin: 0; }
 
 #input-line {
     display: flex;
@@ -94,6 +95,7 @@ body {
     padding: 2px 0;
     font-size: 14px;
     font-family: 'Fira Code', 'DotGothic16', monospace;
+    font-weight: bold;
 }
 
 #input-line.hidden { display: none; }
@@ -108,6 +110,7 @@ body {
     color: var(--fg);
     font-family: 'Fira Code', 'DotGothic16', monospace;
     font-size: 14px;
+    font-weight: bold;
     caret-color: var(--fg);
 }
 
@@ -118,16 +121,16 @@ body {
 .grep-match  { color: var(--fg); font-weight: bold; }
 .help-text   { color: var(--fg); }
 
-.plant-art { color: #40d240; }
-body.dark .plant-art { color: #5cdf61; }
+.plant-art { color: #94d76b; }
+body.dark .plant-art { color: #078F4A; }
 
 /* glowing blue flowers inside plant art */
 .plant-art .pf {
-    color: #fcd67d;
+    color: #F6E372;
     text-shadow: 0 0 3px #fcc97d, 0 0 8px #f8b838, 0 0 18px #e9bd0e;
 }
 body.dark .plant-art .pf {
-    color: #fdf8ba;
+    color: #F6E372;
     text-shadow: 0 0 4px #fde7ba, 0 0 10px #fce07d, 0 0 22px #f8b538;
 }
 
@@ -139,9 +142,10 @@ body.dark .plant-art .pf {
     pointer-events: none;
     z-index: 10;
     background: transparent;
-    padding: 24px;
+    padding: 0 24px;
     font-size: 14px;
-    line-height: 1.6;
+    font-weight: bold;
+    line-height: 1.4;
     font-family: 'Fira Code', 'DotGothic16', monospace;
     white-space: pre;
     overflow: hidden;
@@ -164,7 +168,7 @@ body.dark .plant-art .pf {
     flex-direction: column;
     font-family: 'Fira Code', 'DotGothic16', monospace;
     font-size: 14px;
-    color: var(--fg);
+    color: var(--file);
     z-index: 1000;
 }
 
@@ -196,8 +200,8 @@ body.dark .plant-art .pf {
 #vim-statusbar {
     display: flex;
     justify-content: space-between;
-    background: var(--fg);
-    color: var(--bg);
+    background: var(--border);
+    color: var(--file);
     padding: 2px 8px;
     font-size: 13px;
 }
@@ -217,8 +221,8 @@ body.dark .plant-art .pf {
     display: flex;
     flex-direction: column;
     background: var(--bg);
-    border: 2px solid var(--fg);
-    box-shadow: 6px 6px 0 rgba(0,102,255,0.15);
+    border: 2px solid var(--dim);
+    box-shadow: 10px 10px 0 var(--bg);
     z-index: 500;
     overflow: hidden;
 }
@@ -229,8 +233,8 @@ body.dark .plant-art .pf {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--fg);
-    color: var(--bg);
+    background: var(--dim);
+    color: var(--dim);
     padding: 6px 10px;
     cursor: grab;
     font-family: 'Fira Code', 'DotGothic16', monospace;
@@ -266,13 +270,13 @@ body.dark .plant-art .pf {
     padding: 14px;
     font-family: 'Fira Code', 'DotGothic16', monospace;
     font-size: 13px;
-    color: var(--fg);
+    color: var(--file);
 }
 
-#gui-page h1, #gui-page h2, #gui-page h3 { margin: 10px 0 4px; color: var(--fg); }
-#gui-page p  { margin: 6px 0; color: var(--fg); }
-#gui-page a  { color: var(--fg); }
-#gui-page pre { background: var(--border); padding: 8px; overflow-x: auto; font-size: 12px; margin: 8px 0; }
+#gui-page h1, #gui-page h2, #gui-page h3 { margin: 10px 0 4px; color: var(--file); }
+#gui-page p  { margin: 6px 0; color: var(--file); }
+#gui-page a  { color: var(--file); }
+#gui-page pre { background: var(--bg); padding: 8px; overflow-x: auto; font-size: 12px; margin: 8px 0; }
 #gui-page hr  { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
 
 .gui-post {
@@ -280,11 +284,11 @@ body.dark .plant-art .pf {
     padding: 8px 0;
     border-bottom: 1px solid var(--border);
     cursor: pointer;
-    color: var(--fg);
+    color: var(--file);
     text-decoration: none;
 }
 .gui-post b   { display: block; }
-.gui-post small, .gui-post span { color: var(--dim); font-size: 11px; display: block; }
+.gui-post small, .gui-post span { color: var(--file); font-size: 11px; display: block; }
 
 #gui-resize {
     position: absolute;
@@ -302,7 +306,7 @@ body.dark .plant-art .pf {
 .gui-back {
     background: none;
     border: none;
-    color: var(--fg);
+    color: var(--file);
     cursor: pointer;
     font-family: 'Fira Code', 'DotGothic16', monospace;
     font-size: 12px;
