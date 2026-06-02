@@ -14,7 +14,11 @@ async function guiGo(section, slug = null) {
     } else {
         const srcMap = { home: 'vfs/README.md', 'about-me': 'vfs/about-me/README.md', projects: 'vfs/projects/README.md' };
         const text = await fetchFile(srcMap[section] || 'vfs/README.md');
-        page.innerHTML = window.marked ? marked.parse(text || '') : `<pre>${text}</pre>`;
+        if (section === 'home') {
+            page.innerHTML = `<pre>${ansiToHtml(text || '')}</pre>`;
+        } else {
+            page.innerHTML = window.marked ? marked.parse(text || '') : `<pre>${text}</pre>`;
+        }
     }
 }
 
