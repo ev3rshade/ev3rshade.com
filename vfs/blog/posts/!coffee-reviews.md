@@ -1,3 +1,6 @@
+a list of coffee places i've been to
+
+---
 ## United States
 ### Colorado
 #### Denver
@@ -41,6 +44,11 @@
 	- Plain hojicha
 
 
+---
+## Japan
+
+
+---
 ## Chain
 - Starbucks
 - Saxby's

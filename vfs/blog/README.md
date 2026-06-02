@@ -1,3 +1,5 @@
-this is my blog. i usually write about the thoughts i don't speak out loud. a few coffee reviews here and there.
+
+
+this is my blog. a good starting read is my hobbies list
 
 posts are under posts/
