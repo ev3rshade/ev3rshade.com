@@ -65,17 +65,84 @@ function esc(s) {
         .replace(/>/g, '&gt;');
 }
 
+function ansi256Color(n) {
+    if (n < 16) return ['#000','#800000','#008000','#808000','#000080','#800080','#008080','#c0c0c0',
+                        '#808080','#f00','#0f0','#ff0','#00f','#f0f','#0ff','#fff'][n];
+    if (n < 232) {
+        const i = n - 16, b = (i % 6) * 51, g = (Math.floor(i / 6) % 6) * 51, r = Math.floor(i / 36) * 51;
+        return `rgb(${r},${g},${b})`;
+    }
+    const v = 8 + (n - 232) * 10;
+    return `rgb(${v},${v},${v})`;
+}
+
+function ansiToHtml(text) {
+    const FG = {
+        30:'#2e3436', 31:'#cc0000', 32:'#4e9a06', 33:'#c4a000',
+        34:'#3465a4', 35:'#75507b', 36:'#06989a', 37:'#d3d7cf',
+        90:'#555753', 91:'#ef2929', 92:'#8ae234', 93:'#fce94f',
+        94:'#729fcf', 95:'#ad7fa8', 96:'#34e2e2', 97:'#eeeeec',
+    };
+    const BG = {
+        40:'#2e3436', 41:'#cc0000', 42:'#4e9a06', 43:'#c4a000',
+        44:'#3465a4', 45:'#75507b', 46:'#06989a', 47:'#d3d7cf',
+        100:'#555753', 101:'#ef2929', 102:'#8ae234', 103:'#fce94f',
+        104:'#729fcf', 105:'#ad7fa8', 106:'#34e2e2', 107:'#eeeeec',
+    };
+    const parts = text.split(/(\x1b\[[0-9;]*m)/);
+    let html = '', fg = null, bg = null, bold = false, dim = false;
+    function styleStr() {
+        const s = [];
+        if (fg)   s.push(`color:${fg}`);
+        if (bg)   s.push(`background-color:${bg}`);
+        if (bold) s.push('font-weight:bold');
+        if (dim)  s.push('opacity:0.55');
+        return s.join(';');
+    }
+    for (const part of parts) {
+        const m = part.match(/^\x1b\[([0-9;]*)m$/);
+        if (m) {
+            const codes = m[1] === '' ? [0] : m[1].split(';').map(Number);
+            let j = 0;
+            while (j < codes.length) {
+                const c = codes[j];
+                if      (c === 0)  { fg = null; bg = null; bold = false; dim = false; }
+                else if (c === 1)  bold = true;
+                else if (c === 2)  dim  = true;
+                else if (c === 22) { bold = false; dim = false; }
+                else if (c === 39) fg = null;
+                else if (c === 49) bg = null;
+                else if (FG[c])    fg = FG[c];
+                else if (BG[c])    bg = BG[c];
+                else if (c === 38 && codes[j+1] === 5 && codes[j+2] != null) { fg = ansi256Color(codes[j+2]); j += 2; }
+                else if (c === 38 && codes[j+1] === 2 && codes[j+4] != null) { fg = `rgb(${codes[j+2]},${codes[j+3]},${codes[j+4]})`; j += 4; }
+                else if (c === 48 && codes[j+1] === 5 && codes[j+2] != null) { bg = ansi256Color(codes[j+2]); j += 2; }
+                else if (c === 48 && codes[j+1] === 2 && codes[j+4] != null) { bg = `rgb(${codes[j+2]},${codes[j+3]},${codes[j+4]})`; j += 4; }
+                j++;
+            }
+        } else if (part) {
+            const s = styleStr();
+            html += s ? `<span style="${s}">${esc(part)}</span>` : esc(part);
+        }
+    }
+    return html;
+}
+
 function print(text, cls) {
     const d = document.createElement('div');
     if (cls) d.className = cls;
-    d.textContent = text;
+    if (/\x1b\[/.test(text)) {
+        d.innerHTML = ansiToHtml(text);
+    } else {
+        d.textContent = text;
+    }
     output.appendChild(d);
     terminal.scrollTop = terminal.scrollHeight;
 }
 
 // ── Command dispatch ──────────────────────────────────────────────────────────
 
-const COMMANDS = { ls, cd, cat, grep, wc, find, vim: openVimCmd, plant, clear, theme, help, 'gui-please': guiPlease };
+const COMMANDS = { ls, cd, cat, grep, wc, find, vim: openVimCmd, plant, clear, theme, help, 'gui-please': guiPlease, put, exit: exitCmd };
 
 
 // ── Keyboard handlers ─────────────────────────────────────────────────────────
@@ -147,6 +214,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         vimHandleKey(e);
     });
 
-    // Clicking anywhere refocuses the input
-    document.addEventListener('click', () => { if (!vim.active) cmdInput.focus(); });
+    // Clicking anywhere refocuses the input, unless the user just selected text
+    document.addEventListener('click', () => { if (!vim.active && !window.getSelection().toString()) cmdInput.focus(); });
 });

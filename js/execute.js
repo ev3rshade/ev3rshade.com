@@ -148,11 +148,31 @@ async function find(args) {
 const plantTimers = [];
 function clear() {
     output.innerHTML = '';
+    terminal.scrollTop = 0;
     plantTimers.forEach(clearInterval);
     plantTimers.length = 0;
     terminal.querySelectorAll('.plant-overlay').forEach(el => el.remove());
 }
 function guiPlease() { guiWindow.classList.remove('hidden'); guiGo('home'); }
+function exitCmd()   { window.close(); }
+
+async function put([path] = []) {
+    if (!path) return print('usage: put <file>', 'err');
+    const p = resolvePath(path);
+    const n = node(p);
+    if (!n)               return print(`put: ${path}: No such file or directory`, 'err');
+    if (n.type === 'dir') return print(`put: ${path}: Is a directory`, 'err');
+    const content = await fetchFile(n.src);
+    if (content === null) return print(`put: ${path}: Error reading file`, 'err');
+    const filename = p.split('/').pop();
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    print(`downloading ${filename}`);
+}
 
 function theme([mode] = []) {
     const dark = mode === 'dark' || (mode === undefined && !document.body.classList.contains('dark'));
@@ -170,10 +190,12 @@ function help() {
         '  wc <file>               word, line, and char count',
         '  find [path] [-name <pattern>] [-type f|d]',
         '  vim <file>              open file read-only  (:q to quit)',
-        '  plant                   grow ascii moss',
+        '  plant                   grow ascii plants',
         '  clear                   clear terminal + plants',
         '  theme <light|dark>      toggle color theme',
         '  gui-please              open GUI window',
+        '  put <file>              download file',
+        '  exit                    close this tab',
         '  help                    show this message',
     ].join('\n'), 'help-text');
 }
@@ -203,190 +225,6 @@ function makePin(len, goUp) {
         else out.push(goUp ? PR([',','8',',']) : PR(['n',',']));
     }
     return out;
-}
-
-// ── Fern: upright stem, arcing fronds, perpendicular pinnae ──────────────────
-class PlantFern {
-    constructor(x, groundRow, maxH) {
-        this.x = x;
-        this.groundRow = groundRow;
-        this.lean    = (Math.random() - 0.5) * 0.3;
-        this.targetH = PRI(Math.ceil(maxH * 0.5), maxH);
-
-        // Pre-generate stem chars so rendering is flicker-free
-        this.stemChars = [];
-        for (let h = 0; h <= this.targetH; h++) {
-            this.stemChars.push(
-                h === 0            ? 'I' :
-                h === this.targetH ? PR(PC.tip) :
-                h % 4 === 0        ? ':' : PR(['I','i','I','i'])
-            );
-        }
-
-        // Pre-generate fronds — denser spacing, each with a rib + pinnae
-        this.fronds = [];
-        let step = PRI(2, 3);
-        for (let h = 2; h < this.targetH; h += step, step = PRI(2, 3)) {
-            const dir = this.fronds.length % 2 === 0 ? -1 : 1;
-            this.fronds.push(this.makeFrond(h, dir));
-        }
-
-        this.stemH        = 0;
-        this.growProgress = 0;
-        this.growRate     = 0.12 + Math.random() * 0.08;
-        this.swayPhase    = Math.random() * Math.PI * 2;
-        this.done         = false;
-    }
-
-    makeFrond(h, dir) {
-        const ribLen = PRI(4, 8);
-
-        // Rib: b/d at junction, 'n' at pinna nodes, tips at end
-        const rib = [dir < 0 ? 'b' : 'd'];
-        for (let i = 1; i < ribLen; i++) {
-            if (i === ribLen - 1)   rib.push(PR(PC.tip));
-            else if (i % 2 === 1)   rib.push('n');           // arch = pinna node
-            else                    rib.push(PR([',','.','`',',']));
-        }
-
-        // Pinnae off each 'n' node — taper toward tip, alternate up/down
-        const pinnae = [];
-        for (let i = 1; i < ribLen - 1; i += 2) {
-            const taper   = 1 - i / ribLen;              // 1.0 at base → 0 at tip
-            const upLen   = PRI(1, 2);
-            const downLen = taper > 0.45 ? 1 : 0;       // lower pinnae only near base
-            pinnae.push({
-                ribIdx:    i,
-                upChars:   makePin(upLen, true),
-                downChars: makePin(downLen, false),
-            });
-        }
-
-        return { h, dir, rib, pinnae };
-    }
-
-    update() {
-        if (!this.done) {
-            this.growProgress += this.growRate;
-            while (this.growProgress >= 1) {
-                this.growProgress -= 1;
-                if (this.stemH < this.targetH) this.stemH++;
-                else this.done = true;
-            }
-        }
-        this.swayPhase += 0.045;
-    }
-
-    getCells() {
-        const sway  = Math.sin(this.swayPhase) * 0.9;
-        const cells = [];
-
-        // Stem
-        for (let h = 0; h <= this.stemH; h++) {
-            const row  = this.groundRow - h;
-            const lean = Math.round(h * this.lean * 0.3);
-            const sw   = h > 3 ? Math.round(sway * h / this.targetH) : 0;
-            cells.push({ row, col: this.x + lean + sw, char: this.stemChars[h] });
-        }
-
-        // Fronds (appear as stem grows past their base)
-        for (const f of this.fronds) {
-            if (f.h > this.stemH) continue;
-            const baseRow = this.groundRow - f.h;
-            const lean    = Math.round(f.h * this.lean * 0.3);
-            const sw      = Math.round(sway * f.h / this.targetH);
-            const baseCol = this.x + lean + sw;
-
-            // Rib arcs upward as it extends outward (like canvas fern fronds)
-            for (let i = 0; i < f.rib.length; i++) {
-                const col = baseCol + f.dir * (i + 1);
-                const row = baseRow - Math.floor(i * 0.4);
-                cells.push({ row, col, char: f.rib[i] });
-            }
-
-            // Pinnae: perpendicular to rib, up and optionally down
-            for (const pinna of f.pinnae) {
-                const ribCol = baseCol + f.dir * (pinna.ribIdx + 1);
-                const ribRow = baseRow - Math.floor(pinna.ribIdx * 0.4);
-                for (let j = 0; j < pinna.upChars.length; j++)
-                    cells.push({ row: ribRow - 1 - j, col: ribCol, char: pinna.upChars[j] });
-                for (let j = 0; j < pinna.downChars.length; j++)
-                    cells.push({ row: ribRow + 1 + j, col: ribCol, char: pinna.downChars[j] });
-            }
-        }
-
-        return cells;
-    }
-}
-
-// ── Vine: curving stem that grows upward with leaves ──────────────────────────
-class PlantVine {
-    constructor(x, groundRow, maxH) {
-        this.groundRow = groundRow;
-        this.rows  = [groundRow];
-        this.cols  = [x];
-        this.chars = ['i'];
-        this.leaves = [];
-        this.curRow = groundRow;
-        this.curCol = x;
-        this.dir    = Math.random() < 0.5 ? -1 : 1;
-
-        this.maxSegs      = PRI(maxH, maxH + Math.floor(maxH * 0.7));
-        this.growProgress = 0;
-        this.growRate     = 0.2 + Math.random() * 0.08;
-        this.swayPhase    = Math.random() * Math.PI * 2;
-        this.done         = false;
-    }
-
-    update() {
-        if (!this.done) {
-            this.growProgress += this.growRate;
-            while (this.growProgress >= 1) {
-                this.growProgress -= 1;
-                this.growStep();
-            }
-        }
-        this.swayPhase += 0.05;
-    }
-
-    growStep() {
-        if (this.rows.length >= this.maxSegs) { this.done = true; return; }
-        const r = Math.random();
-        let nr = this.curRow, nc = this.curCol, ch;
-
-        if      (r < 0.50) { nr--;                   ch = PR(PC.stem); }
-        else if (r < 0.68) { nr--; nc--;              ch = 'b'; }
-        else if (r < 0.85) { nr--; nc++;              ch = 'd'; }
-        else if (r < 0.93) { nc += this.dir;          ch = 'n'; }
-        else               { nr--; nc += this.dir;    ch = this.dir < 0 ? '?' : '7'; }
-
-        if (nr < 0) { this.done = true; return; }
-        this.curRow = nr; this.curCol = nc;
-        this.rows.push(nr); this.cols.push(nc); this.chars.push(ch);
-
-        if (this.rows.length % PRI(4, 7) === 0) {
-            const ld = Math.random() < 0.5 ? -1 : 1;
-            this.leaves.push({
-                row: nr, col: nc + ld,
-                char: ld < 0 ? PR(['b',',','`']) : PR(['d',',','`'])
-            });
-        }
-    }
-
-    getCells() {
-        const sway  = Math.sin(this.swayPhase) * 0.8;
-        const n     = this.rows.length;
-        const cells = [];
-
-        for (let i = 0; i < n; i++) {
-            const sf = i / Math.max(1, n - 1);
-            cells.push({ row: this.rows[i], col: this.cols[i] + Math.round(sway * sf), char: this.chars[i] });
-        }
-        for (const l of this.leaves)
-            cells.push({ row: l.row, col: l.col, char: l.char });
-
-        return cells;
-    }
 }
 
 // ── Moss: GoL-inspired freeform patch — dense core + scattered satellites ─────
@@ -540,36 +378,32 @@ class PlantMoss {
     }
 }
 
-function getTerminalCols() {
-    // Measure actual character width so plants fit any screen size
+function measureChar() {
+    const cs = getComputedStyle(output);
     const span = document.createElement('span');
     Object.assign(span.style, {
         visibility: 'hidden', position: 'absolute', whiteSpace: 'pre',
-        fontFamily: getComputedStyle(output).fontFamily,
-        fontSize:   getComputedStyle(output).fontSize,
+        fontFamily: cs.fontFamily,
+        fontSize:   cs.fontSize,
+        fontWeight: cs.fontWeight,
+        lineHeight: cs.lineHeight,
     });
     span.textContent = 'M'.repeat(20);
     document.body.appendChild(span);
-    const charW = span.getBoundingClientRect().width / 20;
+    const r = span.getBoundingClientRect();
     document.body.removeChild(span);
+    return { w: r.width / 20, h: r.height };
+}
+
+function getTerminalCols() {
+    const { w } = measureChar();
     const pad = parseInt(getComputedStyle(terminal).paddingLeft) * 2;
-    return Math.max(20, Math.floor((terminal.clientWidth - pad) / charW));
+    return Math.max(20, Math.floor((terminal.clientWidth - pad) / w));
 }
 
 function getTerminalRows() {
-    const span = document.createElement('span');
-    Object.assign(span.style, {
-        visibility: 'hidden', position: 'absolute', whiteSpace: 'pre',
-        fontFamily: getComputedStyle(output).fontFamily,
-        fontSize:   getComputedStyle(output).fontSize,
-        lineHeight: getComputedStyle(output).lineHeight || '1.6',
-    });
-    span.textContent = 'M';
-    document.body.appendChild(span);
-    const charH = span.getBoundingClientRect().height;
-    document.body.removeChild(span);
-    const pad = parseInt(getComputedStyle(terminal).paddingTop) * 2;
-    return Math.max(8, Math.floor((terminal.clientHeight - pad) / charH));
+    const { h } = measureChar();
+    return Math.max(8, Math.ceil(terminal.clientHeight / h) + 1);
 }
 
 function makePlant() {
@@ -624,8 +458,9 @@ function plant() {
     // on top of existing output at the current scroll position.
     terminal.appendChild(el);
     terminal.scrollTop = terminal.scrollHeight;
-    el.style.top    = terminal.scrollTop + 'px';
-    el.style.height = terminal.clientHeight + 'px';
+    const padTop = parseInt(getComputedStyle(terminal).paddingTop);
+    el.style.top    = Math.max(0, terminal.scrollTop - padTop) + 'px';
+    el.style.height = (terminal.clientHeight + padTop) + 'px';
 
     const id = setInterval(() => { el.innerHTML = renderPlant(art); }, 120);
     plantTimers.push(id);
