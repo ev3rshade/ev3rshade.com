@@ -1,110 +1,75 @@
-# ev3rshade.com
+# React + TypeScript + Vite
 
-vanilla js terminal website — blue and white pixel aesthetic with plants
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## file structure
+Currently, two official plugins are available:
 
-```
-ev3rshade.com/
-├── index.html                  # single-page app, all overlays live here
-│
-├── css/
-│   └── style.css               # all styles (terminal, vim overlay, GUI window, mobile)
-│
-├── js/
-│   ├── vfs.js                  # virtual filesystem (FS map, resolvePath, fetchFile)
-│   ├── execute.js              # command implementations (ls, cd, cat, grep, wc, find,
-│   │                           # plant, clear, theme, help, gui-please, ca)
-│   ├── terminal.js             # input loop, tab-complete, history, prompt, DOMContentLoaded init
-│   ├── vim.js                  # read-only vim viewer overlay (:q to quit, hjkl/gg/G//)
-│   └── gui.js                  # floating GUI window (drag, resize, markdown pages)
-│
-├── fonts/
-│   ├── DotGothic16/            # pixel font (fallback)
-│   └── Fira_Code/              # monospace font (primary)
-│
-├── vfs/                        # content served as the virtual filesystem
-│   ├── README.md               # home page (shown on load and on `cd ~`)
-│   ├── termrc                  # startup config (PROMPT, THEME)
-│   ├── about-me/README.md
-│   ├── projects/README.md
-│   └── blog/
-│       ├── README.md
-│       ├── posts.json          # post index (slug, title, date, description)
-│       └── posts/*.md          # individual blog posts
-│
-├── sync-posts.js               # node script — regenerates vfs/blog/posts.json from posts/
-├── wrangler.jsonc              # Cloudflare Workers / Pages config
-└── README.md
-```
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## how the terminal works
+## React Compiler
 
-The site is a fake shell running entirely in the browser. There is no server-side execution.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-### virtual filesystem
+## Expanding the ESLint configuration
 
-[js/vfs.js](js/vfs.js) defines `FS`, a plain JS object that maps absolute paths to nodes:
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
 ```js
-{ type: 'dir',  children: ['README.md', 'about-me', ...] }
-{ type: 'file', src: 'vfs/about-me/README.md' }   // real fetch path
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
+
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+
 ```
 
-`resolvePath(p)` resolves `.` / `..` / relative paths against `cwd`.  
-`fetchFile(src)` fetches the file over HTTP. `vfs/termrc` is also checked in `localStorage` first (allows per-user overrides).
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-Blog post entries are dynamic — on init, `posts.json` is fetched and the `/blog/posts` directory is populated at runtime.
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-### startup sequence
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 
-1. `DOMContentLoaded` fires in [js/terminal.js](js/terminal.js)
-2. `initFS()` fetches `posts.json` and populates `/blog/posts`
-3. `parseTermrc()` fetches `vfs/termrc`, applies `PROMPT` and `THEME`
-4. `vfs/README.md` is fetched and printed as the welcome screen
-
-### commands
-
-| command | description |
-|---|---|
-| `ls [path]` | list directory contents |
-| `cd <dir>` | change directory; auto-prints `README.md` if present |
-| `cat <file>` | print file contents |
-| `grep <pattern> <file>` | case-insensitive line search |
-| `wc <file>` | line / word / char count |
-| `find [path] [-name <pat>] [-type f\|d]` | walk the virtual fs |
-| `vim <file>` | read-only viewer (`:q` quit, `hjkl` move, `gg`/`G` top/bottom, `/` search) |
-| `plant` | grow an animated ASCII plant garden |
-| `clear` | clear output + stop plant animations |
-| `theme [light\|dark]` | toggle or set color theme |
-| `gui-please` | open the floating GUI window |
-| `help` | print command list |
-
-**Tab completion** works for both command names and file/directory paths.  
-**History** is navigable with ↑ / ↓.
-
-### GUI window
-
-`gui-please` opens a draggable, resizable floating window ([js/gui.js](js/gui.js)) that renders the same `vfs/` markdown content visually. On mobile it opens full-screen.
-
-### theming
-
-Colors are CSS custom properties (`--bg`, `--fg`, `--dim`, etc.) defined in [css/style.css](css/style.css) and toggled via `body.dark`. The default theme is read from `vfs/termrc` (`export THEME="dark"`). The user's preference is persisted in `localStorage`.
-
-### adding blog posts
-
-1. Write a markdown file in `vfs/blog/posts/`
-2. Run `node sync-posts.js` to regenerate `vfs/blog/posts.json`
-3. The post will appear in `ls /blog/posts`, `cat`, vim, and the GUI blog list
-
-
-## Sections that Have been Vibe Coded
-1. Vim - I did not code any of the vim implementation
-
-2. Parts of README - the file structure and the command table.
-
-3. The plant script -- every website iteration I try to get Claude to make generated plants. I think it's an interesting exercise and find it a little silly.
-
-4. termrc functionality
-
-5. CSS styling. However, I designed the color palette and ascii art and picked the fonts.
+```

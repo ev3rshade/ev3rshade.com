@@ -1,7 +1,0 @@
-# ev3rshade terminal config
-
-# prompt prefix
-export PROMPT="user@ev3rshade"
-
-# theme: light | dark
-export THEME="dark"

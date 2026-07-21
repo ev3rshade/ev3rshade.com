@@ -1,55 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ev3rshade</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div id="terminal">
-        <div id="output"></div>
-        <div id="input-line">
-            <span id="prompt"></span>
-            <input id="cmd-input" autofocus autocomplete="off" spellcheck="false">
-        </div>
-    </div>
-
-    <!-- Vim overlay -->
-    <div id="vim-overlay" class="hidden">
-        <div id="vim-content"></div>
-        <div id="vim-statusbar">
-            <span id="vim-file"></span>
-            <span id="vim-mode-label"></span>
-        </div>
-        <div id="vim-cmdline"></div>
-    </div>
-
-    <!-- GUI window -->
-    <div id="gui-window" class="hidden">
-        <div id="gui-titlebar">
-            <span>ev3rshade</span>
-            <nav id="gui-nav">
-                <button onclick="guiGo('home')">~</button>
-                <button onclick="guiGo('about-me')">about</button>
-                <button onclick="guiGo('projects')">projects</button>
-                <button onclick="guiGo('blog')">blog</button>
-            </nav>
-            <button id="gui-close">✕</button>
-        </div>
-        <div id="gui-page"></div>
-        <div id="gui-resize"></div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="js/vfs.js"></script>
-    <script src="js/execute.js"></script>
-    <script src="js/vim.js"></script>
-    <script src="js/terminal.js"></script>
-    <script src="js/gui.js"></script>
-    <script src="js/char.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-website</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
